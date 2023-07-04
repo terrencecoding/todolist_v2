@@ -7,6 +7,7 @@ const _ = require("lodash");
 require("dotenv").config();
 
 const app = express();
+const PORT = process.env.PORT || 3000;
 
 app.set("view engine", "ejs");
 
@@ -17,9 +18,16 @@ app.use(
 );
 app.use(express.static("public"));
 
-mongoose.connect(
-  "mongodb+srv://terrenceadmin:5106359toan@fruitsprojectcluster.x9xtegn.mongodb.net/todolistDB"
-);
+mongoose.set("strictQuery", false);
+const connectDB = async () => {
+  try {
+    const conn = await mongoose.connect(process.env.MONGO_URI);
+    console.log(`MongoDB Connected: ${conn.connect.host}`);
+  } catch (error) {
+    console.log(error);
+    process.exit(1);
+  }
+};
 
 // mongoose (Schema)
 const itemsSchema = {
@@ -195,6 +203,8 @@ app.get("/about", function (req, res) {
 //   port = 3000;
 // }
 
-app.listen(process.env.PORT || 3000, function () {
-  console.log("Server has started successfully.");
+connectDB().then(() => {
+  app.listen(PORT, function () {
+    console.log("Server has started successfully.");
+  });
 });
